@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>活動記録 | 九州大学医学部柔道部</title>
+  <meta name="description" content="九州大学医学部柔道部の大会結果・練習日誌・合宿イベントの記録です。">
+  <meta property="og:title" content="活動記録 | 九州大学医学部柔道部">
+  <meta property="og:description" content="九州大学医学部柔道部の大会結果・練習日誌・合宿イベントの記録です。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://kyudaimedjudo.github.io/kyudai-judo/activities.html">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -19,7 +24,7 @@
         <li><a href="members.html">部員紹介</a></li>
         <li><a href="activities.html">活動記録</a></li>
       </ul>
-      <button class="hamburger" aria-label="メニューを開く">
+      <button class="hamburger" aria-label="メニューを開く" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </div>
@@ -33,38 +38,37 @@
   <section class="section">
     <div class="container">
 
-      <div class="activity-tabs">
-        <button class="activity-tab active" data-target="panel-results">大会結果</button>
-        <button class="activity-tab" data-target="panel-diary">練習日誌</button>
-        <button class="activity-tab" data-target="panel-events">合宿・イベント</button>
+      <div class="activity-tabs" role="tablist">
+        <button class="activity-tab active" data-target="panel-results" role="tab" aria-selected="true">大会結果</button>
+        <button class="activity-tab" data-target="panel-diary" role="tab" aria-selected="false">練習日誌</button>
+        <button class="activity-tab" data-target="panel-events" role="tab" aria-selected="false">合宿・イベント</button>
       </div>
 
-      <!-- 大会結果 -->
-      <div id="panel-results" class="activity-panel active">
-        <table class="result-table">
-          <thead>
-            <tr>
-              <th>開催日</th>
-              <th>大会名</th>
-              <th>種目</th>
-              <th>結果</th>
-            </tr>
-          </thead>
-          <tbody id="results-tbody">
-            <tr><td colspan="4" style="text-align:center;color:var(--color-text-light)">読み込み中...</td></tr>
-          </tbody>
-        </table>
+      <div id="panel-results" class="activity-panel active" role="tabpanel">
+        <div class="table-wrap">
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>開催日</th>
+                <th>大会名</th>
+                <th>種目</th>
+                <th>結果</th>
+              </tr>
+            </thead>
+            <tbody id="results-tbody">
+              <tr><td colspan="4" style="text-align:center;color:var(--color-text-light)">読み込み中...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <!-- 練習日誌 -->
-      <div id="panel-diary" class="activity-panel">
+      <div id="panel-diary" class="activity-panel" role="tabpanel">
         <div class="diary-list" id="diary-list">
           <p style="color:var(--color-text-light)">読み込み中...</p>
         </div>
       </div>
 
-      <!-- 合宿・イベント -->
-      <div id="panel-events" class="activity-panel">
+      <div id="panel-events" class="activity-panel" role="tabpanel">
         <div class="event-grid" id="event-grid">
           <p style="color:var(--color-text-light)">読み込み中...</p>
         </div>
@@ -80,65 +84,86 @@
       <a href="members.html">部員紹介</a>
       <a href="activities.html">活動記録</a>
     </nav>
-    <p>© 2025 九州大学医学部柔道部</p>
+    <div class="footer-contact">
+      <p>お問い合わせ: <a href="mailto:kyudai.med.judo@example.com">kyudai.med.judo@example.com</a></p>
+    </div>
+    <p>&copy; 2025 九州大学医学部柔道部</p>
   </footer>
 
   <script src="js/main.js"></script>
   <script>
+    // XSSサニタイズ
+    function esc(str) {
+      const d = document.createElement('div');
+      d.textContent = str || '';
+      return d.innerHTML;
+    }
+
+    const MONTHS_JA = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+
     // 大会結果
     fetch('data/results.json')
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .then(data => {
         const tbody = document.getElementById('results-tbody');
         if (!data.length) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--color-text-light)">データがありません</td></tr>'; return; }
         tbody.innerHTML = data.map(d => `
           <tr>
-            <td>${d.date}</td>
-            <td>${d.tournament}</td>
-            <td>${d.category}</td>
-            <td><span class="result-badge ${d.badge}">${d.result}</span></td>
+            <td>${esc(d.date)}</td>
+            <td>${esc(d.tournament)}</td>
+            <td>${esc(d.category)}</td>
+            <td><span class="result-badge ${esc(d.badge)}">${esc(d.result)}</span></td>
           </tr>`).join('');
+      })
+      .catch(() => {
+        document.getElementById('results-tbody').innerHTML = '<tr><td colspan="4" style="text-align:center;color:#991b1b">データの読み込みに失敗しました</td></tr>';
       });
 
     // 練習日誌
     fetch('data/diary.json')
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .then(data => {
         const list = document.getElementById('diary-list');
         if (!data.length) { list.innerHTML = '<p style="color:var(--color-text-light)">データがありません</p>'; return; }
         list.innerHTML = data.map(d => {
           const dt = new Date(d.date);
-          const month = dt.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+          const month = MONTHS_JA[dt.getMonth()] || '';
           const day = dt.getDate();
           return `
           <div class="diary-card">
             <div class="diary-date-col">
-              <div class="diary-month">${month}</div>
+              <div class="diary-month">${esc(month)}</div>
               <div class="diary-day">${day}</div>
             </div>
             <div class="diary-body">
-              <h3>${d.title}</h3>
-              <p>${d.content}</p>
+              <h3>${esc(d.title)}</h3>
+              <p>${esc(d.content)}</p>
             </div>
           </div>`;
         }).join('');
+      })
+      .catch(() => {
+        document.getElementById('diary-list').innerHTML = '<p style="color:#991b1b">データの読み込みに失敗しました</p>';
       });
 
     // 合宿・イベント
     fetch('data/events.json')
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .then(data => {
         const grid = document.getElementById('event-grid');
         if (!data.length) { grid.innerHTML = '<p style="color:var(--color-text-light)">データがありません</p>'; return; }
         grid.innerHTML = data.map(d => `
           <div class="event-card">
-            <div class="event-image">${d.photo ? `<img src="${d.photo}" alt="${d.title}">` : (d.emoji || '📸')}</div>
+            <div class="event-image">${d.photo ? `<img src="${esc(d.photo)}" alt="${esc(d.title)}">` : esc(d.emoji || '📸')}</div>
             <div class="event-body">
-              <div class="event-date">${d.date}</div>
-              <h3>${d.title}</h3>
-              <p>${d.content}</p>
+              <div class="event-date">${esc(d.date)}</div>
+              <h3>${esc(d.title)}</h3>
+              <p>${esc(d.content)}</p>
             </div>
           </div>`).join('');
+      })
+      .catch(() => {
+        document.getElementById('event-grid').innerHTML = '<p style="color:#991b1b">データの読み込みに失敗しました</p>';
       });
   </script>
 </body>

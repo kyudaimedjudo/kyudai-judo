@@ -1,5 +1,13 @@
 const OWNER = 'kyudaimedjudo';
 const REPO  = 'kyudai-judo';
+const MAX_PHOTO_SIZE = 2 * 1024 * 1024; // 2MB
+
+// ===== XSSサニタイズ =====
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
 
 // ===== 写真アップロード =====
 function fileToBase64(file) {
@@ -12,16 +20,18 @@ function fileToBase64(file) {
 }
 
 async function uploadPhoto(file, folder, slug) {
+  if (file.size > MAX_PHOTO_SIZE) {
+    throw new Error(`写真のサイズが大きすぎます（${(file.size / 1024 / 1024).toFixed(1)}MB）。2MB以下にしてください。`);
+  }
   const ext = file.name.split('.').pop().toLowerCase();
   const path = `images/${folder}/${slug}.${ext}`;
   const base64 = await fileToBase64(file);
 
-  // 既存ファイルのSHAを取得（上書き用）
   let sha = undefined;
   try {
     const existing = await ghGet(path);
     sha = existing.sha;
-  } catch(e) {} // 新規の場合はそのまま
+  } catch(e) {}
 
   const token = getToken();
   const body = { message: `写真追加: ${path}`, content: base64 };
@@ -41,6 +51,23 @@ async function uploadPhoto(file, folder, slug) {
     throw new Error(err.message || `写真アップロード失敗: ${res.status}`);
   }
   return path;
+}
+
+async function deletePhoto(path) {
+  if (!path) return;
+  try {
+    const file = await ghGet(path);
+    const token = getToken();
+    await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `token ${token}`,
+        Accept: 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ message: `写真削除: ${path}`, sha: file.sha })
+    });
+  } catch(e) { /* 写真がなければ無視 */ }
 }
 
 // ===== GitHub API =====
@@ -78,9 +105,9 @@ async function loadJson(path) {
   return { data: json, sha: file.sha };
 }
 
-// ===== トークン =====
-function getToken() { return localStorage.getItem('gh_token') || ''; }
-function saveToken(t) { localStorage.setItem('gh_token', t); }
+// ===== トークン（sessionStorage） =====
+function getToken() { return sessionStorage.getItem('gh_token') || ''; }
+function saveToken(t) { sessionStorage.setItem('gh_token', t); }
 
 // ===== フィードバック =====
 function showMsg(msg, isError = false) {
@@ -168,6 +195,7 @@ async function addEvent(e) {
 
 // ===== 編集リスト（タブ4）=====
 let cache = { diary: null, results: null, events: null, members: null };
+const FILE_MAP = { diary: 'data/diary.json', results: 'data/results.json', events: 'data/events.json', members: 'data/members.json' };
 
 async function refreshEditList() {
   cache = { diary: null, results: null, events: null, members: null };
@@ -179,11 +207,11 @@ async function loadEditSection(type) {
   const container = document.getElementById('edit-list');
   container.innerHTML = '<p class="loading">読み込み中...</p>';
   try {
-    if (!cache[type]) cache[type] = await loadJson(`data/${type === 'members' ? 'members' : type === 'diary' ? 'diary' : type === 'results' ? 'results' : 'events'}.json`);
+    if (!cache[type]) cache[type] = await loadJson(FILE_MAP[type]);
     const { data } = cache[type];
     renderEditList(type, data, container);
   } catch(err) {
-    container.innerHTML = `<p class="edit-empty">読み込みエラー: ${err.message}</p>`;
+    container.innerHTML = `<p class="edit-empty">読み込みエラー: ${esc(err.message)}</p>`;
   }
 }
 
@@ -192,10 +220,10 @@ function renderEditList(type, data, container) {
 
   const items = data.map((item, idx) => {
     let label = '';
-    if (type === 'diary')   label = `<strong>${item.title}</strong> <span>${item.date}</span>`;
-    if (type === 'results') label = `<strong>${item.tournament}</strong> ${item.category} <span>${item.date} / ${item.result}</span>`;
-    if (type === 'events')  label = `<strong>${item.emoji} ${item.title}</strong> <span>${item.date}</span>`;
-    if (type === 'members') label = `<strong>${item.name}</strong> <span>${item.year}${item.year === '院生' ? '' : '年'} ${item.belt || ''}</span>`;
+    if (type === 'diary')   label = `<strong>${esc(item.title)}</strong> <span>${esc(item.date)}</span>`;
+    if (type === 'results') label = `<strong>${esc(item.tournament)}</strong> ${esc(item.category)} <span>${esc(item.date)} / ${esc(item.result)}</span>`;
+    if (type === 'events')  label = `<strong>${esc(item.emoji)} ${esc(item.title)}</strong> <span>${esc(item.date)}</span>`;
+    if (type === 'members') label = `<strong>${esc(item.name)}</strong> <span>${esc(item.year)}${item.year === '院生' ? '' : '年'} ${esc(item.belt || '')}</span>`;
 
     const editBtn = type === 'members'
       ? `<button class="edit-btn" onclick="openMemberEdit(${idx})">編集</button>`
@@ -214,13 +242,21 @@ function renderEditList(type, data, container) {
   container.innerHTML = items;
 }
 
-// ===== 削除 =====
+// ===== 削除（写真も削除） =====
 async function deleteItem(type, idx) {
   if (!confirm('本当に削除しますか？')) return;
-  const path = `data/${type}.json`;
+  const path = FILE_MAP[type];
   try {
     const { data, sha } = await loadJson(path);
-    const label = type === 'diary' ? data[idx].title : type === 'results' ? data[idx].tournament : type === 'events' ? data[idx].title : data[idx].name;
+    const item = data[idx];
+    const label = type === 'diary' ? item.title : type === 'results' ? item.tournament : type === 'events' ? item.title : item.name;
+
+    // 写真があれば先に削除
+    if (item.photo) {
+      showMsg('関連する写真を削除中...');
+      await deletePhoto(item.photo);
+    }
+
     data.splice(idx, 1);
     await ghPut(path, data, sha, `${label}を削除`);
     cache[type] = null;

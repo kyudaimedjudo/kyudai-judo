@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>部員紹介 | 九州大学医学部柔道部</title>
+  <meta name="description" content="九州大学医学部柔道部の部員を紹介します。">
+  <meta property="og:title" content="部員紹介 | 九州大学医学部柔道部">
+  <meta property="og:description" content="九州大学医学部柔道部の部員を紹介します。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://kyudaimedjudo.github.io/kyudai-judo/members.html">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -19,7 +24,7 @@
         <li><a href="members.html">部員紹介</a></li>
         <li><a href="activities.html">活動記録</a></li>
       </ul>
-      <button class="hamburger" aria-label="メニューを開く">
+      <button class="hamburger" aria-label="メニューを開く" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </div>
@@ -67,11 +72,20 @@
       <a href="members.html">部員紹介</a>
       <a href="activities.html">活動記録</a>
     </nav>
-    <p>© 2025 九州大学医学部柔道部</p>
+    <div class="footer-contact">
+      <p>お問い合わせ: <a href="mailto:kyudai.med.judo@example.com">kyudai.med.judo@example.com</a></p>
+    </div>
+    <p>&copy; 2025 九州大学医学部柔道部</p>
   </footer>
 
   <script src="js/main.js"></script>
   <script>
+    function esc(str) {
+      const d = document.createElement('div');
+      d.textContent = str || '';
+      return d.innerHTML;
+    }
+
     let allMembers = [];
 
     function renderMembers(filter) {
@@ -82,22 +96,22 @@
         return;
       }
       grid.innerHTML = filtered.map(m => `
-        <div class="member-card" data-year="${m.year}">
-          <div class="member-photo">${m.photo ? `<img src="${m.photo}" alt="${m.name}">` : '🥋'}</div>
+        <div class="member-card" data-year="${esc(m.year)}">
+          <div class="member-photo">${m.photo ? `<img src="${esc(m.photo)}" alt="${esc(m.name)}">` : '🥋'}</div>
           <div class="member-info">
-            <div class="member-name">${m.name}</div>
+            <div class="member-name">${esc(m.name)}</div>
             <div class="member-meta">
-              <span class="member-badge">${m.year}${m.year === '院生' ? '' : '年'}</span>
-              ${m.belt ? `<span class="member-badge belt">${m.belt}</span>` : ''}
+              <span class="member-badge">${esc(m.year)}${m.year === '院生' ? '' : '年'}</span>
+              ${m.belt ? `<span class="member-badge belt">${esc(m.belt)}</span>` : ''}
             </div>
-            <div class="member-hometown">📍 ${m.hometown}出身${m.school ? ` / ${m.school}` : ''}</div>
-            ${m.comment ? `<div class="member-comment">${m.comment}</div>` : ''}
+            <div class="member-hometown">📍 ${esc(m.hometown)}出身${m.school ? ` / ${esc(m.school)}` : ''}</div>
+            ${m.comment ? `<div class="member-comment">${esc(m.comment)}</div>` : ''}
           </div>
         </div>`).join('');
     }
 
     fetch('data/members.json')
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .then(data => {
         allMembers = data;
         renderMembers('all');
@@ -109,6 +123,9 @@
             renderMembers(tab.dataset.filter);
           });
         });
+      })
+      .catch(() => {
+        document.getElementById('members-grid').innerHTML = '<p style="color:#991b1b">部員データの読み込みに失敗しました</p>';
       });
   </script>
 </body>

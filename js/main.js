@@ -5,20 +5,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (hamburger && navLinks) {
     hamburger.addEventListener('click', () => {
-      navLinks.classList.toggle('open');
+      const isOpen = navLinks.classList.toggle('open');
+      hamburger.setAttribute('aria-expanded', isOpen);
     });
 
-    // リンククリックでメニューを閉じる
     navLinks.querySelectorAll('a').forEach(a => {
-      a.addEventListener('click', () => navLinks.classList.remove('open'));
+      a.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      });
     });
   }
 
   // ===== アクティブリンクのハイライト =====
-  const currentPage = location.pathname.split('/').pop() || 'index.html';
+  const path = location.pathname;
+  const currentPage = path.endsWith('/') ? 'index.html' : path.split('/').pop() || 'index.html';
   document.querySelectorAll('.navbar-links a').forEach(a => {
     const href = a.getAttribute('href');
-    if (href === currentPage || (currentPage === '' && href === 'index.html')) {
+    if (href === currentPage) {
       a.classList.add('active');
     }
   });
@@ -26,27 +30,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== 活動記録タブ切替 =====
   document.querySelectorAll('.activity-tab').forEach(tab => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.activity-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.activity-tab').forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
       document.querySelectorAll('.activity-panel').forEach(p => p.classList.remove('active'));
       tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
       const target = document.getElementById(tab.dataset.target);
       if (target) target.classList.add('active');
-    });
-  });
-
-  // ===== 部員フィルター =====
-  document.querySelectorAll('.filter-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      const filter = tab.dataset.filter;
-      document.querySelectorAll('.member-card').forEach(card => {
-        if (filter === 'all' || card.dataset.year === filter) {
-          card.style.display = '';
-        } else {
-          card.style.display = 'none';
-        }
-      });
     });
   });
 });
