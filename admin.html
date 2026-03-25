@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理画面 | 九大医学部柔道部</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { background: #f0f4f8; }
+
+    .admin-header {
+      background: var(--color-primary-dark);
+      color: var(--color-white);
+      padding: 1.2rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .admin-header h1 { font-size: 1.1rem; font-weight: 700; }
+    .admin-header a { color: rgba(255,255,255,0.7); font-size: 0.88rem; }
+    .admin-header a:hover { color: var(--color-white); }
+
+    .admin-container { max-width: 860px; margin: 2rem auto; padding: 0 1.2rem; }
+
+    /* トークン */
+    .token-box {
+      background: var(--color-white);
+      border-radius: var(--radius);
+      padding: 1.2rem 1.5rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .token-box label { font-size: 0.88rem; font-weight: 600; color: var(--color-text-light); white-space: nowrap; }
+    .token-box input {
+      flex: 1;
+      min-width: 200px;
+      padding: 0.55rem 0.9rem;
+      border: 1.5px solid var(--color-border);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-family: monospace;
+    }
+    .token-box button {
+      padding: 0.55rem 1.2rem;
+      background: var(--color-primary);
+      color: var(--color-white);
+      border: none;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* フィードバック */
+    .feedback {
+      display: none;
+      padding: 0.8rem 1.2rem;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .feedback.success { background: #d1fae5; color: #065f46; }
+    .feedback.error   { background: #fee2e2; color: #991b1b; }
+
+    /* メインタブ */
+    .admin-tabs {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+    }
+    .admin-tab {
+      padding: 0.65rem 1.3rem;
+      border-radius: 8px 8px 0 0;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--color-white);
+      color: var(--color-text-light);
+      border: 1.5px solid var(--color-border);
+      border-bottom: none;
+      transition: var(--transition);
+    }
+    .admin-tab.active { background: var(--color-primary); color: var(--color-white); border-color: var(--color-primary); }
+
+    .admin-panel {
+      display: none;
+      background: var(--color-white);
+      border-radius: 0 var(--radius) var(--radius) var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2rem;
+      border: 1.5px solid var(--color-border);
+    }
+    .admin-panel.active { display: block; }
+
+    /* フォーム */
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--color-text-light); margin-bottom: 0.35rem; }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.65rem 0.9rem;
+      border: 1.5px solid var(--color-border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: 'Noto Sans JP', sans-serif;
+      transition: border-color var(--transition);
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus { outline: none; border-color: var(--color-primary); }
+    .form-group textarea { resize: vertical; min-height: 90px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    .submit-btn {
+      padding: 0.75rem 2rem;
+      background: var(--color-primary);
+      color: var(--color-white);
+      border: none;
+      border-radius: 100px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .submit-btn:hover { background: var(--color-primary-dark); }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .cancel-btn {
+      padding: 0.75rem 1.5rem;
+      background: transparent;
+      color: var(--color-text-light);
+      border: 1.5px solid var(--color-border);
+      border-radius: 100px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-left: 0.8rem;
+      display: none;
+    }
+
+    .panel-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 2px solid var(--color-border);
+    }
+
+    /* 編集タブ（タブ4内） */
+    .edit-filter-tabs {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    .edit-filter-tab {
+      padding: 0.45rem 1.1rem;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid var(--color-border);
+      background: var(--color-bg);
+      color: var(--color-text-light);
+      transition: var(--transition);
+    }
+    .edit-filter-tab.active {
+      background: var(--color-primary);
+      color: var(--color-white);
+      border-color: var(--color-primary);
+    }
+
+    /* 編集リスト */
+    #edit-list { min-height: 120px; }
+    .edit-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid var(--color-border);
+      gap: 1rem;
+    }
+    .edit-item:last-child { border-bottom: none; }
+    .edit-item-label { font-size: 0.92rem; line-height: 1.5; }
+    .edit-item-label strong { color: var(--color-primary); }
+    .edit-item-label span { color: var(--color-text-light); font-size: 0.82rem; margin-left: 0.4rem; }
+    .edit-item-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+    .edit-btn {
+      padding: 0.35rem 0.9rem;
+      background: var(--color-accent);
+      color: var(--color-primary-dark);
+      border: none;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .delete-btn {
+      padding: 0.35rem 0.9rem;
+      background: #fee2e2;
+      color: #991b1b;
+      border: none;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .edit-empty, .loading { color: var(--color-text-light); font-size: 0.9rem; text-align: center; padding: 2rem 0; }
+
+    .divider { border: none; border-top: 2px solid var(--color-border); margin: 2rem 0; }
+
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .admin-panel { padding: 1.2rem; }
+      .edit-item { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="admin-header">
+    <h1>管理画面 | 九大医学部柔道部</h1>
+    <a href="index.html">← サイトへ戻る</a>
+  </div>
+
+  <div class="admin-container">
+
+    <!-- トークン設定 -->
+    <div class="token-box">
+      <label for="token-input">GitHub Token</label>
+      <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxx">
+      <button id="token-save">保存</button>
+    </div>
+
+    <!-- フィードバック -->
+    <div id="feedback" class="feedback"></div>
+
+    <!-- メインタブ -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-target="panel-diary">練習日誌を追加</button>
+      <button class="admin-tab" data-target="panel-result">大会結果を追加</button>
+      <button class="admin-tab" data-target="panel-event">合宿・イベントを追加</button>
+      <button class="admin-tab" data-target="panel-edit">編集・削除・部員管理</button>
+    </div>
+
+    <!-- タブ1: 練習日誌 -->
+    <div id="panel-diary" class="admin-panel active">
+      <div class="panel-title">練習日誌を追加</div>
+      <form id="diary-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="d-date">日付</label>
+            <input type="date" id="d-date" required>
+          </div>
+          <div class="form-group">
+            <label for="d-title">タイトル</label>
+            <input type="text" id="d-title" placeholder="例: 乱取り中心の練習" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="d-content">内容</label>
+          <textarea id="d-content" placeholder="練習の内容を記入してください" required></textarea>
+        </div>
+        <button type="submit" class="submit-btn">追加する</button>
+      </form>
+    </div>
+
+    <!-- タブ2: 大会結果 -->
+    <div id="panel-result" class="admin-panel">
+      <div class="panel-title">大会結果を追加</div>
+      <form id="result-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="r-date">開催日</label>
+            <input type="text" id="r-date" placeholder="例: 2025.09.07-08" required>
+          </div>
+          <div class="form-group">
+            <label for="r-tournament">大会名</label>
+            <input type="text" id="r-tournament" placeholder="例: 九州地区医科系体育大会（九医体）" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="r-category">種目</label>
+            <input type="text" id="r-category" placeholder="例: 男子団体" required>
+          </div>
+          <div class="form-group">
+            <label for="r-result">結果</label>
+            <input type="text" id="r-result" placeholder="例: 優勝" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="r-badge">バッジ色</label>
+          <select id="r-badge">
+            <option value="gold">金（優勝）</option>
+            <option value="silver" selected>銀（準優勝）</option>
+            <option value="bronze">銅（3位）</option>
+            <option value="other">その他</option>
+          </select>
+        </div>
+        <button type="submit" class="submit-btn">追加する</button>
+      </form>
+    </div>
+
+    <!-- タブ3: 合宿・イベント -->
+    <div id="panel-event" class="admin-panel">
+      <div class="panel-title">合宿・イベントを追加</div>
+      <form id="event-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="e-date">日付</label>
+            <input type="text" id="e-date" placeholder="例: 2025年8月17日〜19日" required>
+          </div>
+          <div class="form-group">
+            <label for="e-emoji">絵文字</label>
+            <input type="text" id="e-emoji" placeholder="例: 🏕️ 🎉 🎌" maxlength="4">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="e-title">タイトル</label>
+          <input type="text" id="e-title" placeholder="例: 夏季合宿（長崎）" required>
+        </div>
+        <div class="form-group">
+          <label for="e-content">内容</label>
+          <textarea id="e-content" placeholder="イベントの内容を記入してください" required></textarea>
+        </div>
+        <button type="submit" class="submit-btn">追加する</button>
+      </form>
+    </div>
+
+    <!-- タブ4: 編集・削除・部員管理 -->
+    <div id="panel-edit" class="admin-panel">
+      <div class="panel-title">編集・削除・部員管理</div>
+
+      <!-- 活動記録の編集・削除 -->
+      <div class="edit-filter-tabs">
+        <button class="edit-filter-tab active" data-type="diary">練習日誌</button>
+        <button class="edit-filter-tab" data-type="results">大会結果</button>
+        <button class="edit-filter-tab" data-type="events">合宿・イベント</button>
+        <button class="edit-filter-tab" data-type="members">部員</button>
+      </div>
+
+      <div id="edit-list">
+        <p class="edit-empty">タブを選択してください</p>
+      </div>
+
+      <!-- 部員フォーム（タブ4内、部員タブ選択時に利用） -->
+      <hr class="divider" id="member-form-divider" style="display:none">
+      <div id="member-form-wrap" style="display:none">
+        <div class="panel-title" id="member-form-title">部員を追加</div>
+        <form id="member-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="m-name">氏名</label>
+              <input type="text" id="m-name" placeholder="例: 山田 太郎" required>
+            </div>
+            <div class="form-group">
+              <label for="m-year">学年</label>
+              <select id="m-year">
+                <option value="1">1年</option>
+                <option value="2">2年</option>
+                <option value="3">3年</option>
+                <option value="4">4年</option>
+                <option value="5">5年</option>
+                <option value="6">6年</option>
+                <option value="院生">院生</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="m-belt">段位・帯</label>
+              <input type="text" id="m-belt" placeholder="例: 黒帯 初段">
+            </div>
+            <div class="form-group">
+              <label for="m-hometown">出身地</label>
+              <input type="text" id="m-hometown" placeholder="例: 福岡県">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="m-school">出身高校</label>
+            <input type="text" id="m-school" placeholder="例: ○○高校">
+          </div>
+          <div class="form-group">
+            <label for="m-comment">ひとことコメント</label>
+            <input type="text" id="m-comment" placeholder="例: 柔道を通じて成長中です！">
+          </div>
+          <button type="submit" class="submit-btn" id="m-submit-btn">追加する</button>
+          <button type="button" class="cancel-btn" id="m-cancel-btn">キャンセル</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    // 部員タブ選択時にフォームを表示
+    document.querySelectorAll('.edit-filter-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const isMember = tab.dataset.type === 'members';
+        document.getElementById('member-form-divider').style.display = isMember ? 'block' : 'none';
+        document.getElementById('member-form-wrap').style.display    = isMember ? 'block' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>

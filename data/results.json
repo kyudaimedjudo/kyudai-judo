@@ -1,0 +1,44 @@
+[
+  {
+    "date": "2025.09.07-08",
+    "tournament": "九州地区医科系体育大会（九医体）",
+    "category": "男子団体",
+    "result": "準優勝",
+    "badge": "silver"
+  },
+  {
+    "date": "2025.09.07-08",
+    "tournament": "九州地区医科系体育大会（九医体）",
+    "category": "男子個人 -73kg",
+    "result": "優勝",
+    "badge": "gold"
+  },
+  {
+    "date": "2025.09.07-08",
+    "tournament": "九州地区医科系体育大会（九医体）",
+    "category": "女子個人 -57kg",
+    "result": "3位",
+    "badge": "bronze"
+  },
+  {
+    "date": "2025.06.15",
+    "tournament": "福岡県学生柔道大会",
+    "category": "男子団体",
+    "result": "ベスト8",
+    "badge": "other"
+  },
+  {
+    "date": "2024.09.08-09",
+    "tournament": "九州地区医科系体育大会（九医体）",
+    "category": "男子団体",
+    "result": "3位",
+    "badge": "bronze"
+  },
+  {
+    "date": "2024.06.16",
+    "tournament": "福岡県学生柔道大会",
+    "category": "男子個人 -81kg",
+    "result": "準優勝",
+    "badge": "silver"
+  }
+]

@@ -11,7 +11,6 @@
 </head>
 <body>
 
-  <!-- ナビゲーション -->
   <nav class="navbar">
     <div class="navbar-inner">
       <a href="index.html" class="navbar-logo">九大医学部<span>柔道部</span></a>
@@ -26,18 +25,15 @@
     </div>
   </nav>
 
-  <!-- ページヘッダー -->
   <header class="page-header">
     <h1>部員紹介</h1>
     <p>九大医学部柔道部のメンバーをご紹介します。</p>
   </header>
 
-  <!-- 部員一覧 -->
   <section class="section">
     <div class="container">
 
-      <!-- フィルタータブ -->
-      <div class="filter-tabs">
+      <div class="filter-tabs" id="filter-tabs">
         <button class="filter-tab active" data-filter="all">全員</button>
         <button class="filter-tab" data-filter="1">1年</button>
         <button class="filter-tab" data-filter="2">2年</button>
@@ -48,95 +44,13 @@
         <button class="filter-tab" data-filter="院生">院生</button>
       </div>
 
-      <!-- 部員カード一覧 -->
-      <div class="members-grid">
-
-        <!-- 部員カード例（実際のデータに差し替えてください） -->
-        <div class="member-card" data-year="4">
-          <div class="member-photo">🥋</div>
-          <div class="member-info">
-            <div class="member-name">山田 太郎</div>
-            <div class="member-meta">
-              <span class="member-badge">4年</span>
-              <span class="member-badge belt">黒帯 初段</span>
-            </div>
-            <div class="member-hometown">📍 福岡県出身 / ○○高校</div>
-            <div class="member-comment">柔道を通じて心身ともに成長できています！</div>
-          </div>
-        </div>
-
-        <div class="member-card" data-year="3">
-          <div class="member-photo">🥋</div>
-          <div class="member-info">
-            <div class="member-name">鈴木 花子</div>
-            <div class="member-meta">
-              <span class="member-badge">3年</span>
-              <span class="member-badge belt">茶帯</span>
-            </div>
-            <div class="member-hometown">📍 熊本県出身 / ○○高校</div>
-            <div class="member-comment">医学と柔道の両立が目標です。</div>
-          </div>
-        </div>
-
-        <div class="member-card" data-year="2">
-          <div class="member-photo">🥋</div>
-          <div class="member-info">
-            <div class="member-name">田中 一郎</div>
-            <div class="member-meta">
-              <span class="member-badge">2年</span>
-              <span class="member-badge belt">青帯</span>
-            </div>
-            <div class="member-hometown">📍 鹿児島県出身 / ○○高校</div>
-            <div class="member-comment">入学して柔道を始めました。日々成長中！</div>
-          </div>
-        </div>
-
-        <div class="member-card" data-year="5">
-          <div class="member-photo">🥋</div>
-          <div class="member-info">
-            <div class="member-name">佐藤 次郎</div>
-            <div class="member-meta">
-              <span class="member-badge">5年</span>
-              <span class="member-badge belt">黒帯 弐段</span>
-            </div>
-            <div class="member-hometown">📍 長崎県出身 / ○○高校</div>
-            <div class="member-comment">後輩の育成に力を入れています。</div>
-          </div>
-        </div>
-
-        <div class="member-card" data-year="1">
-          <div class="member-photo">🥋</div>
-          <div class="member-info">
-            <div class="member-name">高橋 美咲</div>
-            <div class="member-meta">
-              <span class="member-badge">1年</span>
-              <span class="member-badge belt">白帯</span>
-            </div>
-            <div class="member-hometown">📍 大分県出身 / ○○高校</div>
-            <div class="member-comment">初心者ですが、先輩方に教えていただきながら頑張っています！</div>
-          </div>
-        </div>
-
-        <div class="member-card" data-year="院生">
-          <div class="member-photo">🥋</div>
-          <div class="member-info">
-            <div class="member-name">中村 健司</div>
-            <div class="member-meta">
-              <span class="member-badge">院生</span>
-              <span class="member-badge belt">黒帯 参段</span>
-            </div>
-            <div class="member-hometown">📍 宮崎県出身 / ○○高校</div>
-            <div class="member-comment">研究と柔道の両立は大変ですが充実した毎日です。</div>
-          </div>
-        </div>
-
+      <div class="members-grid" id="members-grid">
+        <p style="color:var(--color-text-light)">読み込み中...</p>
       </div>
-      <!-- /members-grid -->
 
-      <!-- 入部案内 -->
-      <div style="margin-top: 3.5rem; background: var(--color-white); border-radius: var(--radius); padding: 2rem 2rem; box-shadow: var(--shadow); text-align: center;">
-        <h2 class="section-title" style="text-align: center;">入部を希望する方へ</h2>
-        <p style="color: var(--color-text-light); margin-top: 1.2rem; margin-bottom: 1.5rem;">
+      <div style="margin-top:3.5rem;background:var(--color-white);border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow);text-align:center;">
+        <h2 class="section-title" style="text-align:center;">入部を希望する方へ</h2>
+        <p style="color:var(--color-text-light);margin-top:1.2rem;margin-bottom:1.5rem;">
           柔道の経験は問いません。初心者の方も大歓迎です。<br>
           まずは体験練習にお越しください。
         </p>
@@ -146,7 +60,6 @@
     </div>
   </section>
 
-  <!-- フッター -->
   <footer class="footer">
     <div class="footer-logo">九大医学部<span>柔道部</span></div>
     <nav class="footer-links">
@@ -158,5 +71,45 @@
   </footer>
 
   <script src="js/main.js"></script>
+  <script>
+    let allMembers = [];
+
+    function renderMembers(filter) {
+      const grid = document.getElementById('members-grid');
+      const filtered = filter === 'all' ? allMembers : allMembers.filter(m => m.year === filter);
+      if (!filtered.length) {
+        grid.innerHTML = '<p style="color:var(--color-text-light)">該当する部員がいません</p>';
+        return;
+      }
+      grid.innerHTML = filtered.map(m => `
+        <div class="member-card" data-year="${m.year}">
+          <div class="member-photo">🥋</div>
+          <div class="member-info">
+            <div class="member-name">${m.name}</div>
+            <div class="member-meta">
+              <span class="member-badge">${m.year}${m.year === '院生' ? '' : '年'}</span>
+              ${m.belt ? `<span class="member-badge belt">${m.belt}</span>` : ''}
+            </div>
+            <div class="member-hometown">📍 ${m.hometown}出身${m.school ? ` / ${m.school}` : ''}</div>
+            ${m.comment ? `<div class="member-comment">${m.comment}</div>` : ''}
+          </div>
+        </div>`).join('');
+    }
+
+    fetch('data/members.json')
+      .then(r => r.json())
+      .then(data => {
+        allMembers = data;
+        renderMembers('all');
+
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+          tab.addEventListener('click', () => {
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            renderMembers(tab.dataset.filter);
+          });
+        });
+      });
+  </script>
 </body>
 </html>

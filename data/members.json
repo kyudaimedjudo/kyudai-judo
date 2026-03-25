@@ -1,0 +1,56 @@
+[
+  {
+    "id": "yamada-taro",
+    "name": "山田 太郎",
+    "year": "4",
+    "belt": "黒帯 初段",
+    "hometown": "福岡県",
+    "school": "○○高校",
+    "comment": "柔道を通じて心身ともに成長できています！"
+  },
+  {
+    "id": "suzuki-hanako",
+    "name": "鈴木 花子",
+    "year": "3",
+    "belt": "茶帯",
+    "hometown": "熊本県",
+    "school": "○○高校",
+    "comment": "医学と柔道の両立が目標です。"
+  },
+  {
+    "id": "tanaka-ichiro",
+    "name": "田中 一郎",
+    "year": "2",
+    "belt": "青帯",
+    "hometown": "鹿児島県",
+    "school": "○○高校",
+    "comment": "入学して柔道を始めました。日々成長中！"
+  },
+  {
+    "id": "sato-jiro",
+    "name": "佐藤 次郎",
+    "year": "5",
+    "belt": "黒帯 弐段",
+    "hometown": "長崎県",
+    "school": "○○高校",
+    "comment": "後輩の育成に力を入れています。"
+  },
+  {
+    "id": "takahashi-misaki",
+    "name": "高橋 美咲",
+    "year": "1",
+    "belt": "白帯",
+    "hometown": "大分県",
+    "school": "○○高校",
+    "comment": "初心者ですが、先輩方に教えていただきながら頑張っています！"
+  },
+  {
+    "id": "nakamura-kenji",
+    "name": "中村 健司",
+    "year": "院生",
+    "belt": "黒帯 参段",
+    "hometown": "宮崎県",
+    "school": "○○高校",
+    "comment": "研究と柔道の両立は大変ですが充実した毎日です。"
+  }
+]
