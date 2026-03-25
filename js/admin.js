@@ -1,6 +1,48 @@
 const OWNER = 'kyudaimedjudo';
 const REPO  = 'kyudai-judo';
 
+// ===== 写真アップロード =====
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadPhoto(file, folder, slug) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  const path = `images/${folder}/${slug}.${ext}`;
+  const base64 = await fileToBase64(file);
+
+  // 既存ファイルのSHAを取得（上書き用）
+  let sha = undefined;
+  try {
+    const existing = await ghGet(path);
+    sha = existing.sha;
+  } catch(e) {} // 新規の場合はそのまま
+
+  const token = getToken();
+  const body = { message: `写真追加: ${path}`, content: base64 };
+  if (sha) body.sha = sha;
+
+  const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `token ${token}`,
+      Accept: 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || `写真アップロード失敗: ${res.status}`);
+  }
+  return path;
+}
+
 // ===== GitHub API =====
 async function ghGet(path) {
   const token = getToken();
@@ -97,14 +139,26 @@ async function addEvent(e) {
   const btn = e.target.querySelector('button[type=submit]');
   btn.disabled = true;
   try {
+    const title = document.getElementById('e-title').value;
+    const slug = title.replace(/\s+/g, '-').replace(/[^\w\-]/g, '') || Date.now().toString();
+
+    let photoPath = null;
+    const photoFile = document.getElementById('e-photo').files[0];
+    if (photoFile) {
+      showMsg('写真をアップロード中...');
+      photoPath = await uploadPhoto(photoFile, 'events', slug);
+    }
+
     const { data, sha } = await loadJson('data/events.json');
-    data.unshift({
+    const entry = {
       date: document.getElementById('e-date').value,
-      title: document.getElementById('e-title').value,
+      title,
       content: document.getElementById('e-content').value,
       emoji: document.getElementById('e-emoji').value || '📸'
-    });
-    await ghPut('data/events.json', data, sha, `イベント追加: ${document.getElementById('e-title').value}`);
+    };
+    if (photoPath) entry.photo = photoPath;
+    data.unshift(entry);
+    await ghPut('data/events.json', data, sha, `イベント追加: ${title}`);
     showMsg('イベントを追加しました');
     e.target.reset();
     refreshEditList();
@@ -206,8 +260,9 @@ async function saveMember(e) {
   e.preventDefault();
   const btn = document.getElementById('m-submit-btn');
   btn.disabled = true;
+  const id = document.getElementById('m-name').value.replace(/\s/g, '-');
   const entry = {
-    id: document.getElementById('m-name').value.replace(/\s/g, '-'),
+    id,
     name: document.getElementById('m-name').value,
     year: document.getElementById('m-year').value,
     belt: document.getElementById('m-belt').value,
@@ -215,7 +270,20 @@ async function saveMember(e) {
     school: document.getElementById('m-school').value,
     comment: document.getElementById('m-comment').value
   };
+
+  // 既存の写真を引き継ぐ
+  if (editingMemberIdx !== null && cache.members) {
+    const existing = cache.members.data[editingMemberIdx];
+    if (existing.photo) entry.photo = existing.photo;
+  }
+
   try {
+    const photoFile = document.getElementById('m-photo').files[0];
+    if (photoFile) {
+      showMsg('写真をアップロード中...');
+      entry.photo = await uploadPhoto(photoFile, 'members', id);
+    }
+
     const { data, sha } = await loadJson('data/members.json');
     const action = editingMemberIdx !== null ? '更新' : '追加';
     if (editingMemberIdx !== null) {

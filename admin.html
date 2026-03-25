@@ -335,6 +335,10 @@
           <label for="e-content">内容</label>
           <textarea id="e-content" placeholder="イベントの内容を記入してください" required></textarea>
         </div>
+        <div class="form-group">
+          <label for="e-photo">写真（任意）</label>
+          <input type="file" id="e-photo" accept="image/*">
+        </div>
         <button type="submit" class="submit-btn">追加する</button>
       </form>
     </div>
@@ -395,6 +399,10 @@
           <div class="form-group">
             <label for="m-comment">ひとことコメント</label>
             <input type="text" id="m-comment" placeholder="例: 柔道を通じて成長中です！">
+          </div>
+          <div class="form-group">
+            <label for="m-photo">写真（任意）</label>
+            <input type="file" id="m-photo" accept="image/*">
           </div>
           <button type="submit" class="submit-btn" id="m-submit-btn">追加する</button>
           <button type="button" class="cancel-btn" id="m-cancel-btn">キャンセル</button>

@@ -83,7 +83,7 @@
       }
       grid.innerHTML = filtered.map(m => `
         <div class="member-card" data-year="${m.year}">
-          <div class="member-photo">🥋</div>
+          <div class="member-photo">${m.photo ? `<img src="${m.photo}" alt="${m.name}">` : '🥋'}</div>
           <div class="member-info">
             <div class="member-name">${m.name}</div>
             <div class="member-meta">

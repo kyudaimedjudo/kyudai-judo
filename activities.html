@@ -132,7 +132,7 @@
         if (!data.length) { grid.innerHTML = '<p style="color:var(--color-text-light)">データがありません</p>'; return; }
         grid.innerHTML = data.map(d => `
           <div class="event-card">
-            <div class="event-image">${d.emoji || '📸'}</div>
+            <div class="event-image">${d.photo ? `<img src="${d.photo}" alt="${d.title}">` : (d.emoji || '📸')}</div>
             <div class="event-body">
               <div class="event-date">${d.date}</div>
               <h3>${d.title}</h3>
