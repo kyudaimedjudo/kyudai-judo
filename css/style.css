@@ -452,14 +452,20 @@ ul { list-style: none; }
 .footer-contact { margin: 0.8rem 0; }
 .footer-contact a { color: var(--color-accent); transition: color var(--transition); }
 .footer-contact a:hover { color: var(--color-white); }
-.footer-sns { display: flex; justify-content: center; gap: 1rem; margin: 0.8rem 0; }
+.footer-sns { display: flex; justify-content: center; gap: 1rem; margin: 1rem 0; flex-wrap: wrap; }
 .footer-sns a {
-  display: inline-flex; align-items: center; gap: 0.4rem;
-  color: rgba(255,255,255,0.7); font-size: 0.88rem;
-  transition: color var(--transition);
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  color: var(--color-white);
+  font-size: 0.92rem;
+  font-weight: 600;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  padding: 0.5rem 1.1rem;
+  border-radius: 100px;
+  transition: background var(--transition), border-color var(--transition);
 }
-.footer-sns a:hover { color: var(--color-white); }
-.footer-sns svg { width: 18px; height: 18px; fill: currentColor; }
+.footer-sns a:hover { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.5); }
+.footer-sns svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
 
 /* ===== スケジュール ===== */
 .schedule-section { background: var(--color-white); }
